@@ -19,12 +19,12 @@ Add your Apache configuration files according to needs into :
 
 ```
 docker run -d \
-           --name myHttpdContainer
-           -e SERVERNAME=foo
-           -e SERVERADMIN=admin@foo
-           -p 80:80
-           -p 443:443
-           --volumes-from otherContainer
+           --name myHttpdContainer \
+           -e SERVERNAME=foo \
+           -e SERVERADMIN=admin@foo \
+           -p 80:80 \
+           -p 443:443 \
+           --volumes-from otherContainer \
            flem/httpd
 ```
 
