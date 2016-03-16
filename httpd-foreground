@@ -1,0 +1,11 @@
+#!/bin/bash
+set -e
+
+# Apache gets grumpy about PID files pre-existing
+rm -f /usr/local/apache2/logs/httpd.pid
+
+# Update the name and port that the server uses to identify itself
+sed -i "s/^#\?\(ServerName \).\+$/\1${HOSTNAME}:80/" /usr/local/apache2/conf/httpd.conf
+
+exec httpd -DFOREGROUND
+
