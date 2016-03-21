@@ -2,35 +2,53 @@
 
 set -e
 
-: ${SERVERNAME:=none}
-: ${SERVERADMIN:=none}
+MAXSERVER=9
 
-if [[ ${SERVERNAME} = 'none' ]]; then
-	echo >&2 'Notice: undefined variable SERVERNAME! - skipping ...'
+# set SERVER and ADMIN arrays
+for (( i=1; i<=${MAXSERVER}; i++ )); do
+	if [[ -v SERVERNAME${i} ]]; then
+		fullsvr="SERVERNAME${i}"
+	 	SERVERNAME_ARRAY[${i}]=${!fullsvr}
+	fi
+
+	if [[ -v SERVERADMIN${i} ]]; then
+		fulladm="SERVERADMIN${i}"
+	 	SERVERADMIN_ARRAY[${i}]=${!fulladm}
+	fi
+done
+
+# one server at least must be defined
+if [[ -z "${SERVERNAME_ARRAY[*]}" ]]; then
+	echo >&2 'Notice: undefined variable(s) SERVERNAME1..9! - skipping ...'
 	exit 1
 fi
 
-if [[ ${SERVERADMIN} = 'none' ]]; then
-	echo >&2 'Notice: undefined variable SERVERADMIN! - skipping ...'
+# one admin at least must be defined
+if [[ -z "${SERVERADMIN_ARRAY[*]}" ]]; then
+	echo >&2 'Notice: undefined variable(s) SERVERADMIN1..9! - skipping ...'
 	exit 1
 fi
 
 
-[ -f "${HTTPD_PREFIX}/conf/extra/httpd-vhosts.conf" ] && \
-    sed -i -e "s/__SERVERNAME__/${SERVERNAME}/" -e "s/__SERVERADMIN__/${SERVERADMIN}/" ${HTTPD_PREFIX}/conf/extra/httpd-vhosts.conf
+for (( i=1; i<=${MAXSERVER}; i++ )); do
+	[ -f "${HTTPD_PREFIX}/conf/extra/httpd-vhosts.conf" ] && \
+		sed -i -e "s/___SERVERNAME${i}___/${SERVERNAME_ARRAY[${i}]}/" -e "s/___SERVERADMIN${i}___/${SERVERADMIN_ARRAY[${i}]}/" ${HTTPD_PREFIX}/conf/extra/httpd-vhosts.conf
 
 
-find $HTTPD_PREFIX/conf-enabled \
-    -maxdepth 1 \
-    -type f -name "*.conf" \
-    -exec sed -i -e "s/__SERVERNAME__/${SERVERNAME}/" -e "s/__SERVERADMIN__/${SERVERADMIN}/" {} \;
+	find $HTTPD_PREFIX/conf-enabled \
+		-maxdepth 1 \
+		-type f -name "*.conf" \
+		-exec sed -i -e "s/___SERVERNAME${i}___/${SERVERNAME_ARRAY[${i}]}/" -e "s/___SERVERADMIN${i}___/${SERVERADMIN_ARRAY[${i}]}/" {} \;
+done
 
 
 if [ ! -f /firstrun ]; then
 	# Echo quickstart guide to logs
 	echo
 	echo '================================================================================='
-	echo "Your ${SERVERNAME} httpd server container is now ready to use!"
+	for (( i=1; i<=${MAXSERVER}; i++ )); do
+		[[ -v SERVERNAME_ARRAY[${i}] ]] && echo "Your ${SERVERNAME_ARRAY[${i}]} httpd server container is now ready to use!"
+	done
 	echo '================================================================================='
 	echo
 fi
