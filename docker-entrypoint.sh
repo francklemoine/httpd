@@ -31,8 +31,10 @@ fi
 
 
 for (( i=1; i<=${MAXSERVER}; i++ )); do
-	[ -f "${HTTPD_PREFIX}/conf/extra/httpd-vhosts.conf" ] && \
-		sed -i -e "s/___SERVERNAME${i}___/${SERVERNAME_ARRAY[${i}]}/g" -e "s/___SERVERADMIN${i}___/${SERVERADMIN_ARRAY[${i}]}/g" ${HTTPD_PREFIX}/conf/extra/httpd-vhosts.conf
+	find $HTTPD_PREFIX/conf/extra \
+		-maxdepth 1 \
+		-type f -name "*.conf" \
+		-exec sed -i -e "s/___SERVERNAME${i}___/${SERVERNAME_ARRAY[${i}]}/g" -e "s/___SERVERADMIN${i}___/${SERVERADMIN_ARRAY[${i}]}/g" {} \;
 
 
 	find $HTTPD_PREFIX/conf-enabled \
