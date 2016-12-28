@@ -1,4 +1,4 @@
-FROM httpd:2.4.18
+FROM httpd:2.4.25
 MAINTAINER Franck Lemoine <franck.lemoine@flem.fr>
 
 ENV HTTPD_PREFIX /usr/local/apache2
